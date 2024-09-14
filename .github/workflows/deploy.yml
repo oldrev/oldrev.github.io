@@ -1,0 +1,30 @@
+name: Deploy Hexo to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # 触发 Action 的分支
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # 或你选择的 Node.js 版本
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Generate site
+      run: hexo generate
+
+    - name: Deploy to GitHub Pages
+      run: hexo deploy
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
