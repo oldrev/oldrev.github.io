@@ -1,0 +1,4 @@
+baseURL = 'https://oldrev.github.io/'
+languageCode = 'zh-cn'
+title = '命叔瞎扯'
+theme = 'hyde'

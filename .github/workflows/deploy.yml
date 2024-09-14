@@ -1,33 +1,35 @@
-name: Deploy Hexo to GitHub Pages
+name: GitHub Pages
 
 on:
   push:
     branches:
-      - master  # 触发 Action 的分支
+      - master  # Set a branch to deploy
+  pull_request:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-20.04
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          submodules: true  # Fetch Hugo themes (true OR recursive)
+          fetch-depth: 0    # Fetch all history for .GitInfo and .Lastmod
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.134.2'
+          # 是否启用 hugo extend
+          extended: true
 
-    - name: Install dependencies
-      run: npm install
-      working-directory: ./blog
+      - name: Build
+        run: hugo --minify
 
-    - name: Generate static files
-      working-directory: ./blog
-      run: npm run build
-
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        github_token: ${{ secrets.ACCESS_TOKEN }}
-        publish_dir: ./blog/public
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.ACCESS_TOKEN }}
+          publish_dir: ./blog/public
