@@ -3,12 +3,12 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: 命叔瞎扯
 subtitle: ''
-description: ''
+description: '各种瞎扯淡'
 keywords:
-author: John Doe
-language: en
+author: 李维
+language: zh-CN
 timezone: ''
 
 # URL
@@ -96,7 +96,8 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
+
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -104,3 +105,18 @@ deploy:
   type: 'git'
   repo: 'https://github.com/oldrev/oldrev.github.io.git'
   branch: 'main'
+
+
+
+
+copyright:
+  start_year: 2024
+  end_year:
+
+menu:
+  home: /
+  archives: /archives
+  #about: /about
+  #categories: /categories
+  tags: /tags
+  #commonweal: /404.html
