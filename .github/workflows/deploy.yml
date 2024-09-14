@@ -22,9 +22,9 @@ jobs:
       run: npm install
       working-directory: ./blog
 
-    - name: Generate site
-      run: hexo generate
+    - name: Generate static files
       working-directory: ./blog
+      run: npm run build
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v4
