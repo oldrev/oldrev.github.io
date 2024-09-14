@@ -21,10 +21,10 @@ jobs:
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: '0.134.2'
-          # 是否启用 hugo extend
           extended: true
 
       - name: Build
+        working-directory: ./blog
         run: hugo --minify
 
       - name: Deploy
