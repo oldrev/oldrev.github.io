@@ -1,13 +1,16 @@
 baseURL = 'https://oldrev.github.io/'
 languageCode = 'zh-cn'
 title = '命叔瞎扯'
-theme = 'hyde'
+copyright = '李维（Li Wei）'
+theme = 'diary'
 [params]
   description = '制作严肃艺术（不许笑的那种）作品，主要内容是关于禅与电单车维修'
-  subtitle = 'The Best Widgets on Earth'
+  enableSearch = true
+  numberOfTagsShown = 14
   [params.contact]
     email = 'info@example.org'
     phone = '+1 202-555-1212'
+
 
 
 [permalinks]

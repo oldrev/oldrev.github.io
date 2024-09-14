@@ -3,6 +3,8 @@ title = '使用 GCC 语句表达式模仿异常，简化错误处理'
 date = 2024-09-14T04:42:39+08:00
 draft = false
 slug = "gcc-stateexpr"
+category = ["嵌入式开发", "C/C++", "Rust"]
+tag = ["c", "c++", "rust", "gcc", "llvm"]
 +++
 
 嵌入式开发里，90% 情况下用的是 GCC，这里介绍一个 GCC 的 C 语言语法扩展，叫“语句表达式”（Statement Expression）。语句表达式，允许在表达式中包含多个语句，并返回最后一个表达式语句的值，比如：
@@ -68,4 +70,6 @@ int main() {
 
 如果你用 C++，可以做一个泛型 union，把泛型的函数返回值和错误码都封装起来一起作为函数返回值，到了这步，恭喜你重新发明了 Rust 的 `Result`。
 
-这个语句表达式语法扩展除了 MSVC，主流的 GCC 和 LLVM Clang 都支持，这也是 VC 编译不了 Linux 内核的原因之一。如果你想看个 C++ 的例子，可以参考[SerenityOS 里的实现](https://github.com/SerenityOS/serenity/blob/master/AK/Try.h)
+这个语句表达式语法扩展除了 MSVC，主流的 GCC 和 LLVM Clang 都支持，这也是 VC 编译不了 Linux 内核的原因之一。如果你想看个 C++ 的例子，可以参考[SerenityOS 里的实现](https://github.com/SerenityOS/serenity/blob/master/AK/Try.h)。
+
+Have fun!

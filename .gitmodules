@@ -1,3 +1,0 @@
-[submodule "blog/themes/hyde"]
-	path = blog/themes/hyde
-	url = https://github.com/spf13/hyde.git
