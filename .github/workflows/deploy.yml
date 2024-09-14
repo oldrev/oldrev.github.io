@@ -20,11 +20,14 @@ jobs:
 
     - name: Install dependencies
       run: npm install
+      working-directory: ./blog
 
     - name: Generate site
       run: hexo generate
+      working-directory: ./blog
 
     - name: Deploy to GitHub Pages
       run: hexo deploy
+      working-directory: ./blog
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
