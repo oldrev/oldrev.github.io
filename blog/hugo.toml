@@ -24,3 +24,7 @@ posts = "/:year/:month/:slug/"
       {Name = "GitHub", URL = "https://github.com/oldrev/"},
       {Name = "Twitter/X", URL = "https://x.com/oldrev"}
   ]
+
+[services]
+  [services.googleAnalytics]
+    id = "G-9DMRBC2QL5"  # Your Google Analytics ID
