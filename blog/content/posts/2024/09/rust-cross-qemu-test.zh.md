@@ -1,5 +1,5 @@
 +++
-title = 'Rust 交叉编译后用 QEMU 执行单元测试'
+title = '用 QEMU 执行 Rust 交叉编译的单元测试'
 date = 2024-09-19T12:00:00+08:00
 draft = false
 slug = "rust-cross-qemu-test"

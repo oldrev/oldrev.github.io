@@ -1,8 +1,9 @@
 baseURL = 'https://oldrev.github.io/'
-languageCode = 'zh-cn'
+languageCode = 'zh'
 title = '命叔瞎扯'
 copyright = '李维（Li Wei）'
 theme = 'diary'
+defaultContentLanguage = 'zh'
 [params]
   description = '制作严肃艺术（不许笑的那种）作品，主要内容是关于禅与电单车维修'
   enableSearch = true
@@ -14,17 +15,63 @@ theme = 'diary'
 
 
 [permalinks]
-posts = "/:year/:month/:slug/"
+posts = "/post/:year/:month/:slug/"
 
 
-[Menus]
-  main = [
-      {Name = "关于我", URL = "/pages/about"},
-      {Name = "博客文章", URL = "/posts"},
-      {Name = "GitHub", URL = "https://github.com/oldrev/"},
-      {Name = "Twitter/X", URL = "https://x.com/oldrev"}
-  ]
+#[Menus]
+#  main = [
+#      {Name = "关于我", URL = "/pages/about"},
+#      {Name = "博客文章", URL = "/posts"},
+#      {Name = "GitHub", URL = "https://github.com/oldrev/"},
+#      {Name = "Twitter/X", URL = "https://x.com/oldrev"}
+#  ]
 
 [services]
   [services.googleAnalytics]
     id = "G-9DMRBC2QL5"  # Your Google Analytics ID
+
+
+[languages]
+[languages.zh]
+languageCode = 'zh'
+languageName = '中文'
+hasCJKLanguage = true
+weight = 1
+[[languages.zh.menus.main]]
+name = '关于我'
+URL = "/pages/about"
+weight = 10
+[[languages.zh.menus.main]]
+name = '博客文章'
+URL = '/posts/'
+weight = 20
+[[languages.zh.menus.main]]
+name = 'GitHub'
+URL = "https://github.com/oldrev"
+weight = 1000
+[[languages.zh.menus.main]]
+name = '推特/X'
+URL = 'https://x.com/oldrev'
+weight = 1010
+
+[languages.en]
+languageCode = 'en'
+languageName = 'English'
+hasCJKLanguage = true
+weight = 1
+[[languages.en.menus.main]]
+name = 'About me'
+URL = "/pages/about"
+weight = 10
+[[languages.en.menus.main]]
+name = 'Blog'
+URL = '/posts'
+weight = 20
+[[languages.en.menus.main]]
+name = 'GitHub'
+URL = "https://github.com/oldrev"
+weight = 1000
+[[languages.en.menus.main]]
+name = 'Twitter/X'
+URL = 'https://x.com/oldrev'
+weight = 1010
