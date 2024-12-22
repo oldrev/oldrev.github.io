@@ -134,7 +134,7 @@
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> __name__ &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#34;__main__&amp;#34;&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> main()
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>你可能你会奇怪里面 &lt;code>xgettext&lt;/code> 为什么把源代码语言指定为 Python，这是因为 &lt;code>xgettext&lt;/code> 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，当然 JavaScript/TypeScript 也可以。&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>你可能你会奇怪里面 &lt;code>xgettext&lt;/code> 为什么把源代码语言指定为 Python，这是因为 &lt;code>xgettext&lt;/code> 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，JavaScript/TypeScript 虽然更像 Dart，但不支持三引号多行字符串。&lt;/p>
 &lt;p>假设这个脚本命名成 &lt;code>update_translations.py&lt;/code>，那么你只需要执行：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>python update_translations.py YOUR_PROJECT_DIR
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>脚本会在你的 Flutter 项目的 &lt;code>assets/i18n&lt;/code> 下面生成 &lt;code>messages.pot&lt;/code>, &lt;code>en.pot&lt;/code>, &lt;code>zh.pot&lt;/code>，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。&lt;/p>
