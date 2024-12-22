@@ -1,4 +1,176 @@
-<?xml-stylesheet href="/rss.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>命叔瞎扯</title><link>https://oldrev.github.io/</link><description>Recent content on 命叔瞎扯</description><generator>Hugo -- gohugo.io</generator><language>zh</language><copyright>李维（Li Wei）</copyright><lastBuildDate>Thu, 19 Sep 2024 12:00:00 +0800</lastBuildDate><atom:link href="https://oldrev.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>用 QEMU 执行 Rust 交叉编译的单元测试</title><link>https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/</link><pubDate>Thu, 19 Sep 2024 12:00:00 +0800</pubDate><guid>https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/</guid><description>命叔瞎扯 https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/ -&lt;h2 id="tldr">TL;DR&lt;/h2>
+<?xml-stylesheet href="/rss.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>命叔瞎扯</title><link>https://oldrev.github.io/</link><description>Recent content on 命叔瞎扯</description><generator>Hugo -- gohugo.io</generator><language>zh</language><copyright>李维（Li Wei）</copyright><lastBuildDate>Sun, 22 Dec 2024 12:00:00 +0800</lastBuildDate><atom:link href="https://oldrev.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Flutter 和 GNU gettext 的 App 国际化翻译最佳实践</title><link>https://oldrev.github.io/post/2024/12/flutter-gettext/</link><pubDate>Sun, 22 Dec 2024 12:00:00 +0800</pubDate><guid>https://oldrev.github.io/post/2024/12/flutter-gettext/</guid><description>命叔瞎扯 https://oldrev.github.io/post/2024/12/flutter-gettext/ -&lt;h2 id="为什么不用-flutter-官方的国际化解决方案">为什么不用 Flutter 官方的国际化解决方案&lt;/h2>
+&lt;p>我最近学着用 Flutter 搓一个国际范儿的手机 App，需要能够根据用户的手机区域和语言设置自动显示不同语言的界面。&lt;/p>
+&lt;p>由于这是我第一个 Flutter 项目，我自然先找了下谷歌官方给出的解决方案，这不看不要紧，一看笑死个人。&lt;/p>
+&lt;p>Flutter 官方的 ARB 语言文件格式要求你提前将所有需要翻译的字符串以程序标识符的形式放入其中。然后，它会在构建过程中生成代码，你才能在程序中使用类似以下的笨拙的方式引用：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-dart" data-lang="dart">&lt;span style="display:flex;">&lt;span>title: Text(AppLocalizations.of(context)&lt;span style="color:#f92672">!&lt;/span>.helloWorld),
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这都 2024 年末了，21 世纪的“新”语言 Dart 和它的 Flutter 框架居然还在用二十多年 VC6 资源文件类似的解决方案处理界面翻译。也就是说，谷歌方案需要你人工负责维护这个 ARB 文件和代码字符串之间的同步关系，代码有改动时，你需要手动添加、修改或者删除 ARB 里对应的翻译条目。&lt;/p>
+&lt;p>作为一个专业退堂鼓表演艺术家，看到这样繁琐的操作和巨大工作量，那是万万不可能再深入研究使用了。&lt;/p>
+&lt;h2 id="给-gettext-一个机会">给 Gettext 一个机会&lt;/h2>
+&lt;p>以前 Python 里用过 gettext，非常的自动化，应该也是绝大多数开源软件的标准国际化解决方案，为了确定大方向是否可行（翻译：有人替我把基础的东西做好了），我查找了下 &lt;code>pub.dev&lt;/code>，确定了 Dart 这边有 &lt;a href="https://pub.dev/packages/gettext">&lt;code>gettext&lt;/code>&lt;/a> 和 &lt;a href="https://pub.dev/packages/flutter_gettext">&lt;code>flutter_gettext&lt;/code>&lt;/a> 两个包来支持。&lt;/p>
+&lt;p>没听过 &lt;code>gettext&lt;/code> 的让我先介绍下 &lt;code>gettext&lt;/code> 是什么：&lt;/p>
+&lt;blockquote>
+&lt;p>gettext 是一个广泛使用的国际化和本地化（i18n 和 l10n）框架，最初由 GNU 项目开发，现已成为许多编程语言和平台的标准国际化工具。它提供了一套完整的工具链，用于从源代码中提取需要翻译的字符串，生成翻译文件，并将翻译应用到应用程序中。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="gettext-的核心概念">Gettext 的核心概念&lt;/h3>
+&lt;ul>
+&lt;li>POT 文件（Portable Object Template）：这是一个模板文件，包含了从源代码中提取的所有需要翻译的字符串。POT 文件通常是 .pot 格式。&lt;/li>
+&lt;li>PO 文件（Portable Object）：这是 POT 文件的翻译版本，包含了每个字符串的翻译内容。PO 文件通常是 .po 格式。&lt;/li>
+&lt;li>MO 文件（Machine Object）：这是 PO 文件的二进制版本，用于在运行时快速加载和应用翻译。MO 文件通常是 .mo 格式。&lt;/li>
+&lt;li>&lt;code>xgettext&lt;/code>：用于从源代码中提取需要翻译的字符串，并生成 POT 文件。&lt;/li>
+&lt;li>&lt;code>msgmerge&lt;/code>：用于将新的 POT 文件与现有的 PO 文件合并，以便更新翻译内容。&lt;/li>
+&lt;li>&lt;code>msgfmt&lt;/code>：用于将 PO 文件编译为 MO 文件。&lt;/li>
+&lt;/ul>
+&lt;h3 id="gettext-的优势">Gettext 的优势&lt;/h3>
+&lt;ul>
+&lt;li>自动化提取字符串：通过 &lt;code>xgettext&lt;/code> 工具，可以自动从源代码中提取需要翻译的字符串，减少手动维护的工作量。&lt;/li>
+&lt;li>简洁的语法：通常只需要在需要翻译的字符串前加上你用语言的某个翻译函数即可，语法简洁明了。&lt;/li>
+&lt;li>成熟的生态系统：&lt;code>gettext&lt;/code> 有丰富的工具链支持，包括 &lt;code>msgmerge&lt;/code>、&lt;code>msgfmt&lt;/code> 等，可以帮助你更高效地管理和维护翻译文件。&lt;/li>
+&lt;li>跨平台支持：&lt;code>gettext&lt;/code> 不仅支持多种编程语言，还支持多种操作系统和平台，是一个非常成熟的国际化解决方案。&lt;/li>
+&lt;/ul>
+&lt;h3 id="安装-gettext-和-flutter-的对应包">安装 Gettext 和 Flutter 的对应包&lt;/h3>
+&lt;p>后续操作之前需要先安装 &lt;code>gettext&lt;/code> 工具包并确保 &lt;code>gettext&lt;/code> 的各个命令行工具在 &lt;code>$PATH&lt;/code> 或者 &lt;code>%PATH%&lt;/code> 环境变量中可用。&lt;/p>
+&lt;p>Linux 不说了 &lt;code>apt&lt;/code> 之类的就解决了，Windows 的话用 Chocolatey 最简单：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-powershell" data-lang="powershell">&lt;span style="display:flex;">&lt;span>choco install gettext
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>Flutter 项目里安装对应的包：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>flutter pub add flutter_gettext
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>flutter pub add flutter_localizations --sdk&lt;span style="color:#f92672">=&lt;/span>flutter
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="flutter-源代码里的翻译">Flutter 源代码里的翻译&lt;/h3>
+&lt;p>在需要使用翻译字符串的地方导入包并调用 &lt;code>context.translate()&lt;/code>：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-dart" data-lang="dart">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">import&lt;/span> &lt;span style="color:#e6db74">&amp;#39;package:gettext_i18n/gettext_i18n.dart&amp;#39;&lt;/span>;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>Widget builld(Build context) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> Text(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> context.translate(&lt;span style="color:#e6db74">&amp;#39;Hello world&amp;#39;&lt;/span>) &lt;span style="color:#75715e">// 这里就自动翻译了，没有对应的语言或者其他的就自动保持英语
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> );
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>更复杂的语法，比如支持复数之类的参考 &lt;a href="https://pub.dev/packages/flutter_gettext">&lt;code>flutter_gettext&lt;/code>&lt;/a> 文档即可。&lt;/p>
+&lt;h2 id="写个-python-脚本自动化操作">写个 Python 脚本自动化操作&lt;/h2>
+&lt;p>我首先运行了下 &lt;code>flutter_gettext&lt;/code> 包的例子，果然是可用的。但难受的是它只涉及 &lt;code>.PO&lt;/code> 文件，没有用到 &lt;code>.pot&lt;/code> 的消息模板文件，也就是说没有用到自动翻译文本提取，到这步基本跟官方的 &lt;code>.arb&lt;/code> 方案类似，无非就是换了个格式，对于我这样的懒人来说是不能接受的。&lt;/p>
+&lt;p>所以一番折腾以后，我写了个 Python 脚本，可以自动从指定的 Flutter 项目的 &lt;code>lib&lt;/code> 源码目录下面扫描所有的源文件，然后会将你全部调用 &lt;code>context.translate('xxx')&lt;/code> 的地方生成翻译文本模板 &lt;code>messages.pot&lt;/code> 及各个语言对应的 &lt;code>.po&lt;/code> 文件。&lt;/p>
+&lt;p>如果 &lt;code>.pot&lt;/code> 和 &lt;code>.po&lt;/code> 文件存在，脚本会自动调用 &lt;code>msgmerge&lt;/code> 合并它们，也就是在你下次代码改动之后，你之前的翻译也不会白费。&lt;/p>
+&lt;h4 id="脚本源码">脚本源码&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-python" data-lang="python">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#!/bin/python&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> os
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> subprocess
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> argparse
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">import&lt;/span> sys
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>__LANGUAGES &lt;span style="color:#f92672">=&lt;/span> [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#39;en&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#e6db74">&amp;#39;zh&amp;#39;&lt;/span>,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Function to run shell commands and check for errors&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">run_command&lt;/span>(command):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;Executing: &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>command&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> result &lt;span style="color:#f92672">=&lt;/span> subprocess&lt;span style="color:#f92672">.&lt;/span>run(command, shell&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#66d9ef">True&lt;/span>, text&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#66d9ef">True&lt;/span>, capture_output&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#66d9ef">True&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> result&lt;span style="color:#f92672">.&lt;/span>returncode &lt;span style="color:#f92672">!=&lt;/span> &lt;span style="color:#ae81ff">0&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;Error occurred: &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>result&lt;span style="color:#f92672">.&lt;/span>stderr&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>, file&lt;span style="color:#f92672">=&lt;/span>sys&lt;span style="color:#f92672">.&lt;/span>stderr)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> exit(result&lt;span style="color:#f92672">.&lt;/span>returncode)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Function to find all .dart files and generate messages.pot&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">generate_pot&lt;/span>(project_path):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> lib_path &lt;span style="color:#f92672">=&lt;/span> os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>join(project_path, &lt;span style="color:#e6db74">&amp;#34;lib&amp;#34;&lt;/span>) &lt;span style="color:#75715e"># Dart source code path&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> assets_path &lt;span style="color:#f92672">=&lt;/span> os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>join(project_path, &lt;span style="color:#e6db74">&amp;#34;assets&amp;#34;&lt;/span>, &lt;span style="color:#e6db74">&amp;#34;i18n&amp;#34;&lt;/span>) &lt;span style="color:#75715e"># Translation files directory&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> languages &lt;span style="color:#f92672">=&lt;/span> __LANGUAGES
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Step 1: Find all Dart files recursively&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dart_files &lt;span style="color:#f92672">=&lt;/span> []
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> root, dirs, files &lt;span style="color:#f92672">in&lt;/span> os&lt;span style="color:#f92672">.&lt;/span>walk(lib_path):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> file &lt;span style="color:#f92672">in&lt;/span> files:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> file&lt;span style="color:#f92672">.&lt;/span>endswith(&lt;span style="color:#e6db74">&amp;#34;.dart&amp;#34;&lt;/span>):
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dart_files&lt;span style="color:#f92672">.&lt;/span>append(os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>relpath(os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>join(root, file), lib_path))
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">if&lt;/span> &lt;span style="color:#f92672">not&lt;/span> dart_files:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;No Dart files found in &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lib_path&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">!&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> exit(&lt;span style="color:#ae81ff">1&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Step 2: Sort Dart files lexicographically&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dart_files&lt;span style="color:#f92672">.&lt;/span>sort()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Ensure assets directory exists&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> os&lt;span style="color:#f92672">.&lt;/span>makedirs(assets_path, exist_ok&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#66d9ef">True&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Step 3: Generate .pot file&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> pot_output_path &lt;span style="color:#f92672">=&lt;/span> os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>join(assets_path, &lt;span style="color:#e6db74">&amp;#34;messages.pot&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> dart_files_string &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">&amp;#34; &amp;#34;&lt;/span>&lt;span style="color:#f92672">.&lt;/span>join(dart_files)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> command &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;xgettext -L Python --keyword=translate --output=&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>pot_output_path&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> --directory=&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lib_path&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>dart_files_string&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> run_command(command)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Step 4: Use msginit to create .po files for each language&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">for&lt;/span> lang &lt;span style="color:#f92672">in&lt;/span> languages:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> po_file &lt;span style="color:#f92672">=&lt;/span> os&lt;span style="color:#f92672">.&lt;/span>path&lt;span style="color:#f92672">.&lt;/span>join(assets_path, &lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lang&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">.po&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Create .po file using msginit&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;Creating new .po file for &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lang&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> at &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>po_file&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> command &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;msginit --no-translator --input=&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>pot_output_path&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> --locale=&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lang&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> --output=&lt;/span>&lt;span style="color:#e6db74">{&lt;/span>po_file&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> run_command(command)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Update the .po file with new translations using msgmerge&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;Updating .po file for &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>lang&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">...&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> update_command &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#e6db74">f&lt;/span>&lt;span style="color:#e6db74">&amp;#34;msgmerge --backup=off --update &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>po_file&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74"> &lt;/span>&lt;span style="color:#e6db74">{&lt;/span>pot_output_path&lt;span style="color:#e6db74">}&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> run_command(update_command)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># 未来如果 flutter_gettext 支持 .mo 文件的话&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Step 5: Compile .po files to .mo&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># for lang in languages:&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># print(f&amp;#34;Compiling .mo file for {lang}...&amp;#34;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># po_file = os.path.join(assets_path, f&amp;#34;{lang}.po&amp;#34;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># mo_file = os.path.join(assets_path, f&amp;#34;{lang}.mo&amp;#34;)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># compile_command = f&amp;#34;msgfmt {po_file} -o {mo_file}&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># run_command(compile_command)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> print(&lt;span style="color:#e6db74">&amp;#34;Translation update complete!&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># Main function to parse command line arguments&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">main&lt;/span>():
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> parser &lt;span style="color:#f92672">=&lt;/span> argparse&lt;span style="color:#f92672">.&lt;/span>ArgumentParser(description&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;Generate and update translation files.&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> parser&lt;span style="color:#f92672">.&lt;/span>add_argument(&lt;span style="color:#e6db74">&amp;#39;project_path&amp;#39;&lt;/span>, help&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;The path to the Flutter project&amp;#34;&lt;/span>)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> args &lt;span style="color:#f92672">=&lt;/span> parser&lt;span style="color:#f92672">.&lt;/span>parse_args()
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#75715e"># Run the script with the provided project path&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> generate_pot(args&lt;span style="color:#f92672">.&lt;/span>project_path)
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">if&lt;/span> __name__ &lt;span style="color:#f92672">==&lt;/span> &lt;span style="color:#e6db74">&amp;#34;__main__&amp;#34;&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> main()
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>你可能你会奇怪里面 &lt;code>xgettext&lt;/code> 为什么把源代码语言指定为 Python，这是因为 &lt;code>xgettext&lt;/code> 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，当然 JavaScript/TypeScript 也可以。&lt;/p>
+&lt;p>假设这个脚本命名成 &lt;code>update_translations.py&lt;/code>，那么你只需要执行：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>python update_translations.py YOUR_PROJECT_DIR
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>脚本会在你的 Flutter 项目的 &lt;code>assets/i18n&lt;/code> 下面生成 &lt;code>messages.pot&lt;/code>, &lt;code>en.pot&lt;/code>, &lt;code>zh.pot&lt;/code>，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。&lt;/p>
+&lt;p>一般来说软件界面默认用英文开发，然后翻译成多语言，那这里你只需要用文本编辑器打开 &lt;code>zh.pot&lt;/code> 按照它的格式翻译就完事儿了。当然更推荐专用的编辑器，例如 PoEdit 之类，或者你也可以将 &lt;code>.pot&lt;/code> 文件上传到 &lt;code>crowdin.com&lt;/code> 之类的在线服务让别人给你翻译。&lt;/p>
+&lt;p>后续开发中，代码如果有变化，多次执行这个脚本不会覆盖你之前的翻译，而是会自动合并修改，因此非常适合在持续集成中自动运行。&lt;/p>
+&lt;p>还有个重要的点，这个脚本提取翻译的时候是将文件排序过的，因此多人合作开发的时候生成的 &lt;code>.pot&lt;/code> 和 &lt;code>.po&lt;/code> 文件不容易引起冲突。&lt;/p>
+&lt;h2 id="集成到-flutter">集成到 Flutter&lt;/h2>
+&lt;p>当你 &lt;code>assets/i18n/.po&lt;/code> 文件准备好以后，记得修改 &lt;code>pubspec.yaml&lt;/code>，在里面的 &lt;code>assets&lt;/code> 这节增加 &lt;code>i18n&lt;/code> 目录，否则翻译不会打包进 App：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">flutter&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">assets&lt;/span>:
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#ae81ff">assets/i18n/&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>就参考 &lt;code>flutter_gettext&lt;/code> 的例子，在 App 中初始化：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-dart" data-lang="dart">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">MyApp&lt;/span> &lt;span style="color:#66d9ef">extends&lt;/span> StatelessWidget {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">const&lt;/span> MyApp({Key&lt;span style="color:#f92672">?&lt;/span> key}) &lt;span style="color:#f92672">:&lt;/span> &lt;span style="color:#66d9ef">super&lt;/span>(key: key);
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#960050;background-color:#1e0010">@&lt;/span>override
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Widget build(BuildContext context) {
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">return&lt;/span> MaterialApp(
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> locale: &lt;span style="color:#66d9ef">const&lt;/span> Locale(&lt;span style="color:#e6db74">&amp;#39;en&amp;#39;&lt;/span>), &lt;span style="color:#75715e">// 默认英文，当然也可以去掉根据系统
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> supportedLocales: &lt;span style="color:#66d9ef">const&lt;/span> [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Locale(&lt;span style="color:#e6db74">&amp;#39;en&amp;#39;&lt;/span>),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Locale(&lt;span style="color:#e6db74">&amp;#39;zh&amp;#39;&lt;/span>), &lt;span style="color:#75715e">// 这里只用了语言没用国家代码，确保与 .po 文件名一致，如果需要加上国家代码，则需要修改下生成脚本
+&lt;/span>&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">&lt;/span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> localizationsDelegates: [
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> GettextLocalizationsDelegate(),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> GlobalMaterialLocalizations.delegate,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> GlobalCupertinoLocalizations.delegate,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> GlobalWidgetsLocalizations.delegate,
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ],
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> home: &lt;span style="color:#66d9ef">const&lt;/span> HomePage(),
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> );
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>启动程序即可看到翻译后的界面，至于是让用户配置语言还是跟随系统这就由你决定了。&lt;/p>
+&lt;p>需要注意的是前面的内容针对的是 Flutter 应用的翻译，需要 &lt;code>BuildContext&lt;/code>，如果是纯 Dart 没有 &lt;code>BuildContext&lt;/code> 的部分，那就等我用到了再来更新这篇文章。&lt;/p>
+&lt;p>最后，玩得开心。&lt;/p>
+- https://oldrev.github.io/post/2024/12/flutter-gettext/ - 李维（Li Wei）</description></item><item><title>用 QEMU 执行 Rust 交叉编译的单元测试</title><link>https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/</link><pubDate>Thu, 19 Sep 2024 12:00:00 +0800</pubDate><guid>https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/</guid><description>命叔瞎扯 https://oldrev.github.io/post/2024/09/rust-cross-qemu-test/ -&lt;h2 id="tldr">TL;DR&lt;/h2>
 &lt;p>本文介绍一种在 Linux 下通过 &lt;code>qemu-user-static&lt;/code> 工具对交叉编译的 Rust 程序执行单元测试的方法。&lt;/p>
 &lt;h2 id="为何有此需求">为何有此需求？&lt;/h2>
 &lt;p>最近用 Rust 做嵌入式 Linux 开发的时候，交叉编译完程序以后，为了保证质量，还需要对目标平台执行单元测试。问题来了，“qemu-user-static”只能转译执行单个可执行文件，而一般 Rust 程序的单元测试是通过 &lt;code>cargo test&lt;/code> 来执行的。解决这个问题的思路我们需要把单元测试编译成一个或者多个可执行文件让 QEMU 来执行，通过观察普通 &lt;code>cargo test&lt;/code> 的执行过程，我发现它本身就是把单元测试编译成一个可执行程序来执行的，只是该可执行文件的名称会在后面加上源码的哈希值，所以在持续集成等环境下，我们需要确定输出的可执行文件名。&lt;/p>
