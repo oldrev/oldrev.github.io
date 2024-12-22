@@ -137,12 +137,12 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>你可能你会奇怪里面 &lt;code>xgettext&lt;/code> 为什么把源代码语言指定为 Python，这是因为 &lt;code>xgettext&lt;/code> 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，JavaScript/TypeScript 虽然更像 Dart，但不支持三引号多行字符串。&lt;/p>
 &lt;p>假设这个脚本命名成 &lt;code>update_translations.py&lt;/code>，那么你只需要执行：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>python update_translations.py YOUR_PROJECT_DIR
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>脚本会在你的 Flutter 项目的 &lt;code>assets/i18n&lt;/code> 下面生成 &lt;code>messages.pot&lt;/code>, &lt;code>en.pot&lt;/code>, &lt;code>zh.pot&lt;/code>，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。&lt;/p>
-&lt;p>一般来说软件界面默认用英文开发，然后翻译成多语言，那这里你只需要用文本编辑器打开 &lt;code>zh.pot&lt;/code> 按照它的格式翻译就完事儿了。当然更推荐专用的编辑器，例如 PoEdit 之类，或者你也可以将 &lt;code>.pot&lt;/code> 文件上传到 &lt;code>crowdin.com&lt;/code> 之类的在线服务让别人给你翻译。&lt;/p>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>脚本会在你的 Flutter 项目的 &lt;code>assets/i18n&lt;/code> 下面生成 &lt;code>messages.pot&lt;/code>, &lt;code>en.po&lt;/code>, &lt;code>zh.po&lt;/code>，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。&lt;/p>
+&lt;p>一般来说软件界面默认用英文开发，然后翻译成多语言，那这里你只需要用文本编辑器打开 &lt;code>zh.po&lt;/code> 按照它的格式翻译就完事儿了。当然更推荐专用的编辑器，例如 PoEdit 之类，或者你也可以将 &lt;code>.pot&lt;/code> 文件上传到 &lt;code>crowdin.com&lt;/code> 之类的在线服务让别人给你翻译。&lt;/p>
 &lt;p>后续开发中，代码如果有变化，多次执行这个脚本不会覆盖你之前的翻译，而是会自动合并修改，因此非常适合在持续集成中自动运行。&lt;/p>
 &lt;p>还有个重要的点，这个脚本提取翻译的时候是将文件排序过的，因此多人合作开发的时候生成的 &lt;code>.pot&lt;/code> 和 &lt;code>.po&lt;/code> 文件不容易引起冲突。&lt;/p>
 &lt;h2 id="集成到-flutter">集成到 Flutter&lt;/h2>
-&lt;p>当你 &lt;code>assets/i18n/.po&lt;/code> 文件准备好以后，记得修改 &lt;code>pubspec.yaml&lt;/code>，在里面的 &lt;code>assets&lt;/code> 这节增加 &lt;code>i18n&lt;/code> 目录，否则翻译不会打包进 App：&lt;/p>
+&lt;p>当你 &lt;code>assets/i18n/*.po&lt;/code> 文件准备好以后，记得修改 &lt;code>pubspec.yaml&lt;/code>，在里面的 &lt;code>assets&lt;/code> 这节增加 &lt;code>i18n&lt;/code> 目录，否则翻译不会打包进 App：&lt;/p>
 &lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-yaml" data-lang="yaml">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#f92672">flutter&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#f92672">assets&lt;/span>:
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> - &lt;span style="color:#ae81ff">assets/i18n/&lt;/span>
