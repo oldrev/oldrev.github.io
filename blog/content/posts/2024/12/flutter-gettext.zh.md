@@ -138,7 +138,7 @@ def generate_pot(project_path):
     # Step 3: Generate .pot file
     pot_output_path = os.path.join(assets_path, "messages.pot")
     dart_files_string = " ".join(dart_files)
-    command = f"xgettext -L Python --keyword=translate --output={pot_output_path} --directory={lib_path} {dart_files_string}"
+    command = f"xgettext --from-code=UTF-8 -L Python --keyword=translate --output={pot_output_path} --directory={lib_path} {dart_files_string}"
     run_command(command)
 
     # Step 4: Use msginit to create .po files for each language
@@ -146,14 +146,15 @@ def generate_pot(project_path):
         po_file = os.path.join(assets_path, f"{lang}.po")
 
         # Create .po file using msginit
-        print(f"Creating new .po file for {lang} at {po_file}")
-        command = f"msginit --no-translator --input={pot_output_path} --locale={lang} --output={po_file}"
-        run_command(command)
-
-        # Update the .po file with new translations using msgmerge
-        print(f"Updating .po file for {lang}...")
-        update_command = f"msgmerge --backup=off --update {po_file} {pot_output_path}"
-        run_command(update_command)
+        if not os.path.exists(po_file) :
+            print(f"Creating new .po file for {lang} at {po_file}")
+            command = f"msginit --no-translator --input={pot_output_path} --locale={lang}.UTF-8 --output={po_file}"
+            run_command(command)
+        else:
+            # Update the .po file with new translations using msgmerge
+            print(f"Updating .po file for {lang}...")
+            update_command = f"msgmerge --backup=off --previous --update {po_file} {pot_output_path}"
+            run_command(update_command)
 
     # 未来如果 flutter_gettext 支持 .mo 文件的话
     # Step 5: Compile .po files to .mo
