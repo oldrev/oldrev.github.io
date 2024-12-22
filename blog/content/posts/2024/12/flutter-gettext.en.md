@@ -187,16 +187,16 @@ Save the script as `update_translations.py` and execute it like this:
 python update_translations.py YOUR_PROJECT_DIR
 ```
 
-The script generates `messages.pot`, `en.pot`, and `zh.pot` in the `assets/i18n` directory of your Flutter project. You can modify the script to add additional languages or integrate APIs like ChatGPT for automated translations.
+The script generates `messages.pot`, `en.po`, and `zh.po` in the `assets/i18n` directory of your Flutter project. You can modify the script to add additional languages or integrate APIs like ChatGPT for automated translations.
 
-In most cases, you’ll develop the app interface in English by default, then translate it into other languages. Open `zh.pot` in a text editor and translate it. For better productivity, use specialized tools like PoEdit or upload the `.pot` files to online services like `crowdin.com`.
+In most cases, you’ll develop the app interface in English by default, then translate it into other languages. Open `zh.po` in a text editor and translate it. For better productivity, use specialized tools like PoEdit or upload the `.pot` files to online services like `crowdin.com`.
 
 When the code changes, re-running this script preserves previous translations and automatically merges updates, making it ideal for use in CI pipelines.
 
 Moreover, this script sorts files before extraction, reducing conflicts during team collaboration.
 
 Integrating with Flutter
-Once the `assets/i18n/.po` files are ready, update `pubspec.yaml` to include the i18n directory under assets. Otherwise, translations won’t be packaged into the app:
+Once the `assets/i18n/*.po` files are ready, update `pubspec.yaml` to include the i18n directory under assets. Otherwise, translations won’t be packaged into the app:
 
 ```yaml
 flutter:

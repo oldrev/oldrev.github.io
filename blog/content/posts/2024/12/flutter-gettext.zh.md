@@ -188,9 +188,9 @@ if __name__ == "__main__":
 python update_translations.py YOUR_PROJECT_DIR
 ```
 
-脚本会在你的 Flutter 项目的 `assets/i18n` 下面生成 `messages.pot`, `en.pot`, `zh.pot`，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。
+脚本会在你的 Flutter 项目的 `assets/i18n` 下面生成 `messages.pot`, `en.po`, `zh.po`，需要其他语言的你也可以自己修改脚本增加，甚至可以接入类似 ChatGPT API 之类的来自动翻译。
 
-一般来说软件界面默认用英文开发，然后翻译成多语言，那这里你只需要用文本编辑器打开 `zh.pot` 按照它的格式翻译就完事儿了。当然更推荐专用的编辑器，例如 PoEdit 之类，或者你也可以将 `.pot` 文件上传到 `crowdin.com` 之类的在线服务让别人给你翻译。
+一般来说软件界面默认用英文开发，然后翻译成多语言，那这里你只需要用文本编辑器打开 `zh.po` 按照它的格式翻译就完事儿了。当然更推荐专用的编辑器，例如 PoEdit 之类，或者你也可以将 `.pot` 文件上传到 `crowdin.com` 之类的在线服务让别人给你翻译。
 
 后续开发中，代码如果有变化，多次执行这个脚本不会覆盖你之前的翻译，而是会自动合并修改，因此非常适合在持续集成中自动运行。
 
@@ -198,7 +198,7 @@ python update_translations.py YOUR_PROJECT_DIR
 
 ## 集成到 Flutter
 
-当你 `assets/i18n/.po` 文件准备好以后，记得修改 `pubspec.yaml`，在里面的 `assets` 这节增加 `i18n` 目录，否则翻译不会打包进 App：
+当你 `assets/i18n/*.po` 文件准备好以后，记得修改 `pubspec.yaml`，在里面的 `assets` 这节增加 `i18n` 目录，否则翻译不会打包进 App：
 
 ```yaml
 flutter:
