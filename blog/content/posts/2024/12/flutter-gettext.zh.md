@@ -180,7 +180,7 @@ if __name__ == "__main__":
     main()
 ```
 
-你可能你会奇怪里面 `xgettext` 为什么把源代码语言指定为 Python，这是因为 `xgettext` 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，当然 JavaScript/TypeScript 也可以。
+你可能你会奇怪里面 `xgettext` 为什么把源代码语言指定为 Python，这是因为 `xgettext` 不支持 Dart，而 Python 的字符串表示和函数调用语法最接近 Dart，JavaScript/TypeScript 虽然更像 Dart，但不支持三引号多行字符串。
 
 假设这个脚本命名成 `update_translations.py`，那么你只需要执行：
 
