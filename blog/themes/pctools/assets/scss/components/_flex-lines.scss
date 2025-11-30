@@ -1,0 +1,20 @@
+
+/* Flexible Header/Footer Lines */
+.dos-flex-line {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-weight: bold;
+}
+
+.dos-line-fill {
+  flex-grow: 1;
+  height: 0.55em;
+  border-bottom: 3px double currentColor;
+  margin: 0 2px;
+}
+
+.dos-title-text {
+  padding: 0 10px;
+  white-space: nowrap;
+}

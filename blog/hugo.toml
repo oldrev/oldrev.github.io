@@ -2,7 +2,7 @@ baseURL = 'https://oldrev.github.io/'
 languageCode = 'zh'
 title = '命叔瞎扯'
 copyright = '李维（Li Wei）'
-theme = 'diary'
+theme = 'pctools'
 defaultContentLanguage = 'zh'
 [params]
   description = '制作严肃艺术（不许笑的那种）作品，主要内容是关于禅与电单车维修'
@@ -10,7 +10,7 @@ defaultContentLanguage = 'zh'
   enableUtterances = true
   numberOfTagsShown = 14
   [params.contact]
-    email = 'info@example.org'
+    email = 'oldrev@gmail.com'
     phone = '+1 202-555-1212'
 
 

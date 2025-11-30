@@ -1,0 +1,12 @@
+name = "PCTools"
+license = "MIT"
+licenselink = "https://github.com/yourusername/pctools/blob/master/LICENSE"
+description = "A retro DOS-style Hugo theme inspired by 90s PCTools and Norton Disk Doctor"
+homepage = "https://github.com/yourusername/pctools"
+tags = ["blog", "retro", "dos", "vintage", "minimalist"]
+features = ["responsive", "dos-style", "retro-ui"]
+min_version = "0.112.0"
+
+[author]
+  name = "Your Name"
+  homepage = "https://github.com/yourusername"

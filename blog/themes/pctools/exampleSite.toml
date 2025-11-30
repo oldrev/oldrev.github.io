@@ -1,0 +1,70 @@
+# PCTools Theme - Example Configuration
+
+# Basic site settings
+baseURL = "https://example.com/"
+languageCode = "zh-cn"
+defaultContentLanguage = "zh"
+title = "My DOS Blog"
+theme = "pctools"
+
+# Pagination
+paginate = 10
+
+# Enable RSS
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]
+
+# Multilingual support (optional)
+[languages]
+  [languages.zh]
+    languageName = "简体中文"
+    weight = 1
+    [languages.zh.params]
+      subtitle = "一个复古的DOS风格博客"
+  
+  [languages.en]
+    languageName = "English"
+    weight = 2
+    [languages.en.params]
+      subtitle = "A Retro DOS-style Blog"
+
+# Site parameters
+[params]
+  description = "A retro DOS-style blog powered by Hugo"
+  keywords = ["blog", "dos", "retro", "tech"]
+  subtitle = "PC Tools v9.0 - Disk Management System"
+  favicon = "/favicon.ico"
+
+# Copyright notice
+copyright = "© 2025 My DOS Blog. All rights reserved."
+
+# Main menu
+[[menu.main]]
+  name = "Posts"
+  url = "/posts/"
+  weight = 1
+
+[[menu.main]]
+  name = "Tags"
+  url = "/tags/"
+  weight = 2
+
+[[menu.main]]
+  name = "About"
+  url = "/about/"
+  weight = 3
+
+# Taxonomies
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+
+# Markup settings
+[markup]
+  [markup.highlight]
+    style = "monokai"
+    lineNos = true
+    lineNumbersInTable = true
+  [markup.goldmark.renderer]
+    unsafe = true

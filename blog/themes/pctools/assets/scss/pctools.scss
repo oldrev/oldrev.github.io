@@ -1,0 +1,518 @@
+/* PCTools DOS Theme - Main Styles */
+
+/* DOS Color Palette */
+$dos-blue: #0000AA;
+$dos-cyan: #55FFFF;
+$dos-white: #FFFFFF;
+$dos-yellow: #FFFF55;
+$dos-gray: #AAAAAA;
+$dos-lightblue: #5555FF;
+$dos-darkgray: #555555;
+$dos-black: #000000;
+$dos-red: #AA0000;
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  background-color: $dos-blue;
+  color: $dos-cyan;
+  text-rendering: optimizeSpeed;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* DOS Window Container */
+.dos-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 10px;
+}
+
+/* DOS Window/Panel */
+.dos-window {
+  background-color: $dos-blue;
+  border: 4px double $dos-cyan;
+  box-shadow: 8px 8px 0 $dos-black;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+/* Window Title Bar */
+.dos-title-bar {
+  background-color: $dos-blue;
+  color: $dos-white;
+  padding: 5px 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  border-bottom: 2px solid $dos-cyan;
+  position: relative;
+}
+
+/* Window Content */
+.dos-content {
+  padding: 15px;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  color: $dos-yellow;
+  text-transform: uppercase;
+  margin: 15px 0 10px 0;
+  font-weight: normal;
+  letter-spacing: 2px;
+}
+
+h1 {
+  font-size: 32px;
+  border-bottom: 2px solid $dos-cyan;
+  padding-bottom: 5px;
+}
+
+h2 {
+  font-size: 28px;
+  color: $dos-white;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+p {
+  margin: 10px 0;
+  color: $dos-white;
+}
+
+a {
+  color: $dos-yellow;
+  text-decoration: none;
+  position: relative;
+  
+  &:hover {
+    color: $dos-white;
+    background-color: $dos-cyan;
+    color: $dos-blue;
+    padding: 0 4px;
+  }
+  
+  &:visited {
+    color: $dos-lightblue;
+  }
+}
+
+/* Lists */
+ul, ol {
+  margin: 10px 0 10px 30px;
+  color: $dos-white;
+}
+
+li {
+  margin: 5px 0;
+  
+  &::marker {
+    color: $dos-cyan;
+  }
+}
+
+/* Code blocks */
+code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  background-color: $dos-black;
+  color: $dos-cyan;
+  padding: 2px 6px;
+  border: 1px solid $dos-darkgray;
+}
+
+pre {
+  background-color: $dos-black;
+  color: $dos-cyan;
+  padding: 15px;
+  border: 1px solid $dos-white;
+  overflow-x: auto;
+  margin: 15px 0;
+  box-shadow: none;
+  
+  code {
+    background: none;
+    border: none;
+    padding: 0;
+  }
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 4px solid $dos-cyan;
+  padding-left: 15px;
+  margin: 15px 0;
+  color: $dos-gray;
+  font-style: italic;
+}
+
+/* Menu/Navigation */
+.dos-menu {
+  background-color: $dos-blue;
+  color: $dos-white;
+  padding: 15px 0;
+  border-bottom: 2px solid $dos-cyan;
+  
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+  }
+  
+  li {
+    display: inline-block;
+    margin: 0;
+  }
+  
+  a {
+    color: $dos-blue;
+    background-color: $dos-cyan;
+    padding: 5px 15px;
+    display: block;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 6px 6px 0 $dos-black;
+    transition: transform 0.1s, box-shadow 0.1s;
+    border: 1px solid $dos-white;
+    
+    &:hover {
+      background-color: $dos-white;
+      color: $dos-blue;
+    }
+    
+    &:active {
+      transform: translate(6px, 6px);
+      box-shadow: none;
+    }
+    
+    &.active {
+      background-color: $dos-yellow;
+      color: $dos-blue;
+    }
+  }
+}
+
+/* Post List */
+.post-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-item {
+  border: 1px solid $dos-cyan;
+  margin-bottom: 15px;
+  padding: 15px;
+  position: relative;
+  
+  &:hover {
+    background-color: $dos-red;
+    color: $dos-white;
+    
+    .post-title {
+      color: $dos-white;
+    }
+    
+    .post-meta {
+      color: $dos-white;
+    }
+    
+    &::before {
+      color: $dos-white;
+    }
+  }
+  
+  &::before {
+    content: '►';
+    color: $dos-yellow;
+    position: absolute;
+    left: -5px;
+    top: 15px;
+  }
+}
+
+.post-title {
+  font-size: 24px;
+  color: $dos-yellow;
+  margin: 0 0 5px 0;
+}
+
+.post-meta {
+  color: $dos-gray;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.post-summary {
+  color: $dos-white;
+}
+
+/* Button */
+.dos-button {
+  background-color: $dos-cyan;
+  color: $dos-blue;
+  border: 2px solid $dos-white;
+  padding: 8px 20px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 16px;
+  
+  &:hover {
+    background-color: $dos-yellow;
+    box-shadow: 2px 2px 0 $dos-black;
+  }
+  
+  &:active {
+    box-shadow: inset 2px 2px 0 $dos-black;
+  }
+}
+
+/* Table */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 15px 0;
+  border: 2px solid $dos-cyan;
+  
+  th {
+    background-color: $dos-cyan;
+    color: $dos-blue;
+    padding: 8px;
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  td {
+    padding: 8px;
+    border: 1px solid $dos-darkgray;
+    color: $dos-white;
+  }
+  
+  tr:nth-child(even) {
+    background-color: rgba($dos-black, 0.3);
+  }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 30px 0;
+  
+  a, span {
+    padding: 8px 15px;
+    border: 2px solid $dos-cyan;
+    color: $dos-cyan;
+    
+    &:hover {
+      background-color: $dos-cyan;
+      color: $dos-blue;
+    }
+    
+    &.active {
+      background-color: $dos-yellow;
+      color: $dos-blue;
+      border-color: $dos-yellow;
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    font-size: 18px;
+  }
+  
+  .dos-container {
+    margin: 10px;
+    padding: 0 5px;
+  }
+  
+  h1 {
+    font-size: 26px;
+  }
+  
+  h2 {
+    font-size: 22px;
+  }
+  
+  .dos-menu ul {
+    flex-direction: column;
+  }
+}
+
+/* Blinking cursor effect */
+@keyframes blink {
+  0%, 49% {
+    opacity: 1;
+  }
+  50%, 100% {
+    opacity: 0;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  width: 12px;
+  height: 20px;
+  background-color: $dos-cyan;
+  animation: blink 1s infinite;
+  margin-left: 5px;
+}
+
+/* Selection */
+::selection {
+  background-color: $dos-cyan;
+  color: $dos-blue;
+}
+
+::-moz-selection {
+  background-color: $dos-cyan;
+  color: $dos-blue;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: $dos-blue;
+  border: 1px solid $dos-cyan;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $dos-cyan;
+  border: 1px solid $dos-blue;
+  
+  &:hover {
+    background: $dos-yellow;
+  }
+}
+
+/* Additional utility classes */
+.text-center {
+  text-align: center;
+}
+
+.mt-20 {
+  margin-top: 20px;
+}
+
+.mb-20 {
+  margin-bottom: 20px;
+}
+
+.ml-15 {
+  margin-left: 15px;
+}
+
+/* Post navigation styling */
+.post-navigation {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 2px solid $dos-cyan;
+  
+  div {
+    margin-bottom: 10px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* Footer styling */
+footer {
+  margin-top: 20px;
+  
+  .dos-content {
+    text-align: center;
+    
+    p {
+      margin: 5px 0;
+      
+      &.footer-credits {
+        color: $dos-gray;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+/* Header styling */
+header {
+  margin-bottom: 0;
+  
+  .dos-menu {
+    ul {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+  }
+}
+
+/* Terms list styling */
+.terms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  
+  li {
+    border: 1px solid $dos-cyan;
+    margin-bottom: 10px;
+    padding: 10px;
+    
+    a {
+      font-size: 22px;
+    }
+    
+    span {
+      color: $dos-gray;
+      margin-left: 10px;
+    }
+  }
+}
+
+/* 404 page styling */
+.error-404 {
+  text-align: center;
+  padding: 50px 20px;
+  
+  pre {
+    font-size: 16px;
+    line-height: 1.2;
+    display: inline-block;
+    text-align: left;
+  }
+  
+  .error-message {
+    margin: 30px 0;
+    font-size: 24px;
+  }
+}
+
+@import "components/flex-lines";

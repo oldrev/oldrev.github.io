@@ -1,0 +1,39 @@
+{{ define "main" }}
+<div class="dos-title-bar">
+  {{ .Title }}
+</div>
+
+<div class="list-content">
+  {{ .Content }}
+  
+  {{ if .Pages }}
+  <ul class="post-list">
+    {{ range .Pages }}
+    <li class="post-item">
+      <h3 class="post-title">
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h3>
+      <div class="post-meta">
+        <span>{{ .Date.Format "2006-01-02 15:04" }}</span>
+        {{ if .Params.tags }}
+        <span> | {{ i18n "tags" | default "Tags" }}: 
+          {{ range $index, $tag := .Params.tags }}
+            {{- if $index }}, {{ end -}}
+            <a href="{{ "/tags/" | relLangURL }}{{ $tag | urlize }}">{{ $tag }}</a>
+          {{ end }}
+        </span>
+        {{ end }}
+      </div>
+      {{ if .Summary }}
+      <div class="post-summary">
+        {{ .Summary }}
+      </div>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ul>
+  
+  {{ template "_internal/pagination.html" . }}
+  {{ end }}
+</div>
+{{ end }}

@@ -1,0 +1,15 @@
+<footer class="dos-window">
+  <div class="dos-content">
+    <p>
+      {{ with .Site.Copyright }}
+        {{ . | safeHTML }}
+      {{ else }}
+        &copy; {{ now.Year }} {{ .Site.Title }}
+      {{ end }}
+    </p>
+    <p class="footer-credits">
+      {{ i18n "powered_by" | default "Powered by" }} <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> 
+      {{ i18n "with_theme" | default "with" }} <a href="#">PCTools</a>
+    </p>
+  </div>
+</footer>

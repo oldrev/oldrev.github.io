@@ -1,0 +1,49 @@
+{{ define "main" }}
+<div class="dos-title-bar">
+  {{ .Site.Title }} - {{ i18n "home" | default "Main Menu" }}
+</div>
+
+<div class="home-content">
+  {{ .Content }}
+  
+  <h2>{{ i18n "recent_posts" | default "Recent Posts" }}</h2>
+  
+  {{ if .Site.RegularPages }}
+  <ul class="post-list">
+    {{ range first 10 .Site.RegularPages }}
+    <li class="post-item">
+      <h3 class="post-title">
+        <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+      </h3>
+      <div class="post-meta">
+        <span>{{ .Date.Format "2006-01-02 15:04" }}</span>
+        {{ if .Params.tags }}
+        <span> | {{ i18n "tags" | default "Tags" }}: 
+          {{ range $index, $tag := .Params.tags }}
+            {{- if $index }}, {{ end -}}
+            <a href="{{ "/tags/" | relLangURL }}{{ $tag | urlize }}">{{ $tag }}</a>
+          {{ end }}
+        </span>
+        {{ end }}
+      </div>
+      {{ if .Summary }}
+      <div class="post-summary">
+        {{ .Summary }}
+      </div>
+      {{ end }}
+    </li>
+    {{ end }}
+  </ul>
+  {{ else }}
+  <p>{{ i18n "no_posts" | default "No posts found." }}</p>
+  {{ end }}
+  
+  {{ if gt (len .Site.RegularPages) 10 }}
+  <div class="text-center mt-20">
+    <a href="{{ "posts" | relLangURL }}" class="dos-button">
+      {{ i18n "view_all" | default "View All Posts" }} &gt;&gt;
+    </a>
+  </div>
+  {{ end }}
+</div>
+{{ end }}

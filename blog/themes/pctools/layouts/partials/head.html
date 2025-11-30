@@ -1,0 +1,33 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<title>{{ block "title" . }}{{ .Site.Title }}{{ end }}</title>
+
+{{ if .Description }}
+<meta name="description" content="{{ .Description }}">
+{{ else if .Summary }}
+<meta name="description" content="{{ .Summary }}">
+{{ else if .Site.Params.description }}
+<meta name="description" content="{{ .Site.Params.description }}">
+{{ end }}
+
+{{ if .Keywords }}
+<meta name="keywords" content="{{ delimit .Keywords ", " }}">
+{{ else if .Site.Params.keywords }}
+<meta name="keywords" content="{{ delimit .Site.Params.keywords ", " }}">
+{{ end }}
+
+{{ hugo.Generator }}
+
+{{ $scss := resources.Get "scss/pctools.scss" }}
+{{ $style := $scss | css.Sass | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $style.RelPermalink }}">
+
+{{ with .Site.Params.favicon }}
+<link rel="icon" href="{{ . | relURL }}">
+{{ end }}
+
+{{ range .AlternativeOutputFormats -}}
+<link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink | safeURL }}" title="{{ $.Site.Title }}">
+{{ end -}}

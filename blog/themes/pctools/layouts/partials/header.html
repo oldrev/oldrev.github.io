@@ -1,0 +1,21 @@
+<header class="dos-window">
+  <div class="dos-title-bar">
+    {{ .Site.Title | upper }}{{ if .Site.Params.subtitle }} - {{ .Site.Params.subtitle | upper }}{{ end }}
+  </div>
+  
+  <nav class="dos-menu">
+    <ul>
+      <li><a href="{{ "/" | relLangURL }}" {{ if .IsHome }}class="active"{{ end }}>{{ i18n "home" | default "Home" }}</a></li>
+      
+      {{ range .Site.Menus.main }}
+      <li><a href="{{ .URL | relLangURL }}">{{ .Name }}</a></li>
+      {{ end }}
+      
+      {{ if hugo.IsMultilingual }}
+      {{ range .Site.Home.AllTranslations }}
+      <li><a href="{{ .Permalink }}" {{ if eq .Lang $.Lang }}class="active"{{ end }}>{{ .Language.LanguageName }}</a></li>
+      {{ end }}
+      {{ end }}
+    </ul>
+  </nav>
+</header>

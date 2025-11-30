@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang }}">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  <div class="dos-container">
+    {{ partial "header.html" . }}
+    
+    <main class="dos-window">
+      <div class="dos-content">
+        {{ block "main" . }}{{ end }}
+      </div>
+    </main>
+    
+    {{ partial "footer.html" . }}
+  </div>
+  
+  {{ partial "scripts.html" . }}
+</body>
+</html>

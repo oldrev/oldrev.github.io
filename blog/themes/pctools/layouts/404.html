@@ -1,0 +1,32 @@
+{{ define "main" }}
+<div class="dos-title-bar">
+  404 - {{ i18n "not_found" | default "File Not Found" }}
+</div>
+
+<div class="error-404">
+  <pre>
+  ╔═══════════════════════════════════════╗
+  ║                                       ║
+  ║   ███████╗██████╗ ██████╗  ██████╗   ║
+  ║   ██╔════╝██╔══██╗██╔══██╗██╔═══██╗  ║
+  ║   █████╗  ██████╔╝██████╔╝██║   ██║  ║
+  ║   ██╔══╝  ██╔══██╗██╔══██╗██║   ██║  ║
+  ║   ███████╗██║  ██║██║  ██║╚██████╔╝  ║
+  ║   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝   ║
+  ║                                       ║
+  ║        PAGE NOT FOUND - 404           ║
+  ║                                       ║
+  ╚═══════════════════════════════════════╝
+  </pre>
+  
+  <p class="error-message">
+    {{ i18n "404_message" | default "The requested file could not be found." }}
+  </p>
+  
+  <p>
+    <a href="{{ "/" | relLangURL }}" class="dos-button">
+      ◄ {{ i18n "back_home" | default "Back to Main Menu" }}
+    </a>
+  </p>
+</div>
+{{ end }}
